@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://github.hubspot.com/odometer/themes/odometer-theme-default.css" />
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Roboto Black, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -40,7 +40,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            opacity: 0.2;
+            opacity: 1;
             z-index: -1;
         }
         .odometer {
@@ -80,7 +80,7 @@
         </div>
     </div>
     <script>
-        const API_KEY = 'YOUR-API-KEY';
+        const API_KEY = 'AIzaSyA6rKXoWYuh85-n4IWMtusyb8lR8wAIGHs';
         const MRBEAST_CHANNEL_ID = 'UCX6OQ3DkcsbYNE6H8uQQuVA';
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -113,7 +113,7 @@
 
                         // Convertir la durée en secondes et exclure les vidéos de moins de 60 secondes
                         const durationInSeconds = parseISODuration(duration);
-                        if (durationInSeconds >= 60) {
+                        if (durationInSeconds <= 120) {
                             latestVideoId = videoId;
                             break;
                         }
@@ -185,7 +185,6 @@
                 }
             }
 
-            setInterval(updateVideoId, 300000); // Mettre à jour l'ID de la vidéo toutes les 5 minutes (300000 ms)
             setInterval(updateVideoData, 2000); // Mettre à jour les données de la vidéo toutes les 2 secondes (2000 ms)
             updateVideoId(); // Appeler immédiatement pour initialiser
         });
