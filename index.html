@@ -6,74 +6,69 @@
     <link rel="stylesheet" href="https://github.hubspot.com/odometer/themes/odometer-theme-default.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
-
         body {
             font-family: Roboto, sans-serif !important;
-            display: flex;
-            flex-direction: column;
-            align-items: left;
-            justify-content: left;
-            height: 100vh;
             margin: 0;
             background-color: black;
             color: white;
             font-weight: 900;
         }
+
+        #main {
+            position: relative;
+            top: 400px; /* décalage global */
+        }
+
         .video-list {
-            font-family: Roboto, sans-serif !important;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            justify-content: left;
-            font-weight: 900;
         }
+
         .video-item {
-            font-family: Roboto, sans-serif !important;
-            text-align: left; /* Changer de 'center' à 'left' pour aligner à gauche */
+            text-align: left;
             color: white;
             overflow: hidden;
-            font-weight: 900;
         }
+
         .video-item h3 {
-            font-family: Roboto, sans-serif !important;
             margin: 0;
-            font-size: 2em; /* Ajuster la taille du titre */
-            font-weight: 900;
+            font-size: 2em;
         }
+
         .video-item img {
-            font-family: Roboto, sans-serif !important;
             top: 0;
             left: 0;
             opacity: 1;
             z-index: -1;
-            font-weight: 900;
         }
+
         .odometer {
-            font-family: Roboto, sans-serif !important;
-            font-size: 5em; /* Ajuster la taille du compteur */
+            font-size: 15em;
             font-weight: 900;
+            position: fixed;
+            z-index: 9999;
+            top: 10px;
+            left: 10px;
         }
+
         .likes {
-            font-family: Roboto, sans-serif !important;
             color: lightgreen;
-            font-weight: 900;
         }
+
         .views {
-            font-family: Roboto, sans-serif !important;
             color: lightblue;
-            font-weight: 900;
         }
+
         .thumbnail-container {
-            font-family: Roboto, sans-serif !important;
-            font-weight: 900;
             width: 100%;
             padding-top: 56.25%;
             margin-bottom: 15px;
+            position: relative;
         }
+
         .thumbnail-container img {
-            font-family: Roboto, sans-serif !important;
-            font-weight: 900;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
@@ -83,16 +78,19 @@
     <script src="https://github.hubspot.com/odometer/odometer.js"></script>
 </head>
 <body>
-    <div class="video-list">
-        <div class="video-item">
-            <div class="thumbnail-container">
-                <img id="mrbeast-video-thumbnail" src="https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e" alt="Miniature de la vidéo">
+    <div id="main">
+        <div class="video-list">
+            <div class="video-item">
+                <div class="thumbnail-container">
+                    <img id="mrbeast-video-thumbnail" src="https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e" alt="Miniature de la vidéo">
+                </div>
+                <h3 id="mrbeast-video-title">Loading...</h3>
+                <p><span id="mrbeast-video-views" class="odometer views">0</span></p>
+                <p><span id="mrbeast-video-likes" class="odometer likes">0</span></p>
             </div>
-            <h3 id="mrbeast-video-title">Loading...</h3>
-            <p><span id="mrbeast-video-views" class="odometer views">0</span></p>
-            <p><span id="mrbeast-video-likes" class="odometer likes">0</span></p>
         </div>
     </div>
+
     <script>
         const API_KEY = 'AIzaSyA6rKXoWYuh85-n4IWMtusyb8lR8wAIGHs';
         const MRBEAST_CHANNEL_ID = 'UCX6OQ3DkcsbYNE6H8uQQuVA';
@@ -112,32 +110,19 @@
             async function fetchLatestVideoId() {
                 try {
                     const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${MRBEAST_CHANNEL_ID}&maxResults=5&order=date&type=video&key=${API_KEY}`);
-                    if (!response.ok) {
-                        throw new Error('Erreur lors de la récupération des vidéos');
-                    }
+                    if (!response.ok) throw new Error('Erreur lors de la récupération des vidéos');
 
                     const data = await response.json();
-                    let latestVideoId = null;
-
                     for (const item of data.items) {
                         const videoId = item.id.videoId;
                         const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${API_KEY}`);
                         const videoDetailsData = await videoDetailsResponse.json();
                         const duration = videoDetailsData.items[0].contentDetails.duration;
-
-                        // Convertir la durée en secondes et exclure les vidéos de moins de 60 secondes
                         const durationInSeconds = parseISODuration(duration);
-                        if (durationInSeconds <= 120) {
-                            latestVideoId = videoId;
-                            break;
-                        }
+                        if (durationInSeconds <= 120) return videoId;
                     }
 
-                    if (!latestVideoId) {
-                        throw new Error('Aucune vidéo trouvée (hors Shorts)');
-                    }
-
-                    return latestVideoId;
+                    throw new Error('Aucune vidéo trouvée (hors Shorts)');
                 } catch (error) {
                     console.error('Erreur lors de la récupération des vidéos :', error);
                 }
@@ -146,9 +131,7 @@
             async function fetchVideoData(videoId) {
                 try {
                     const response = await fetch(`https://backend.mixerno.space/api/youtube/video/${videoId}`);
-                    if (!response.ok) {
-                        throw new Error('Erreur lors de la récupération des données de la vidéo');
-                    }
+                    if (!response.ok) throw new Error('Erreur lors de la récupération des données de la vidéo');
 
                     const data = await response.json();
                     const video = data;
@@ -160,24 +143,9 @@
 
                     if (titleElement && thumbnailElement && viewsElement && likesElement) {
                         titleElement.innerText = video.items[0].snippet.title || 'Titre non trouvé';
-
-                        if (video.items[0].snippet.thumbnails && video.items[0].snippet.thumbnails.medium) {
-                            thumbnailElement.src = video.items[0].snippet.thumbnails.medium.url;
-                        } else {
-                            console.error('Miniature non trouvée.');
-                            thumbnailElement.src = 'https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e';
-                        }
-
-                        if (video.items[0].statistics) {
-                            viewsElement.innerText = video.items[0].statistics.viewCount || '0';
-                            likesElement.innerText = video.items[0].statistics.likeCount || '0';
-                        } else {
-                            console.error('Données de vues ou de likes non trouvées.');
-                            viewsElement.innerText = '0';
-                            likesElement.innerText = '0';
-                        }
-                    } else {
-                        console.error("Un ou plusieurs éléments du DOM manquent.");
+                        thumbnailElement.src = video.items[0].snippet.thumbnails?.medium?.url || 'https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e';
+                        viewsElement.innerText = video.items[0].statistics?.viewCount || '0';
+                        likesElement.innerText = video.items[0].statistics?.likeCount || '0';
                     }
                 } catch (error) {
                     console.error('Erreur lors de la récupération des données de la vidéo :', error);
@@ -187,22 +155,17 @@
             let currentVideoId = null;
 
             async function updateVideoData() {
-                if (currentVideoId) {
-                    fetchVideoData(currentVideoId);
-                }
+                if (currentVideoId) fetchVideoData(currentVideoId);
             }
 
             async function updateVideoId() {
                 currentVideoId = await fetchLatestVideoId();
-                if (currentVideoId) {
-                    updateVideoData();
-                }
+                if (currentVideoId) updateVideoData();
             }
 
-            setInterval(updateVideoData, 2000); // Mettre à jour les données de la vidéo toutes les 2 secondes (2000 ms)
-            updateVideoId(); // Appeler immédiatement pour initialiser
+            setInterval(updateVideoData, 2000);
+            updateVideoId();
         });
     </script>
-    
 </body>
 </html>
