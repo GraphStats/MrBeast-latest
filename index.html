@@ -1,171 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Vidéos de MrBeast</title>
-    <link rel="stylesheet" href="https://github.hubspot.com/odometer/themes/odometer-theme-default.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: Roboto, sans-serif !important;
-            margin: 0;
-            background-color: black;
-            color: white;
-            font-weight: 900;
-        }
+  <meta charset="UTF-8">
+  <title>Vidéos de MrBeast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://github.hubspot.com/odometer/themes/odometer-theme-default.css" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-weight: 900;
+    }
 
-        #main {
-            position: relative;
-            top: 400px; /* décalage global */
-        }
+    #main {
+     font-family: 'Roboto', sans-serif;
+      padding: 80px 20px;
+      display: flex;
+      justify-content: center;
+    }
 
-        .video-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+    .video-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 1200px;
+      width: 100%;
+    }
 
-        .video-item {
-            text-align: left;
-            color: white;
-            overflow: hidden;
-        }
+    .video-item {
+      width: 100%;
+      max-width: 400px;
+    }
 
-        .video-item h3 {
-            margin: 0;
-            font-size: 2em;
-        }
+    .thumbnail-container {
+      width: 100%;
+      padding-top: 56.25%;
+      position: relative;
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
 
-        .video-item img {
-            top: 0;
-            left: 0;
-            opacity: 1;
-            z-index: -1;
-        }
+    .thumbnail-container img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      top: 0;
+      left: 0;
+    }
 
-        .odometer {
-            font-size: 15em;
-            font-weight: 900;
-            position: left;
-            z-index: 9999;
-            top: 10px;
-            left: 10px;
-        }
+    .video-item h3 {
+      font-size: 1.5em;
+      margin: 0 0 10px;
+    }
 
-        .likes {
-            color: lightgreen;
-        }
+    .odometer {
+      font-family: 'Roboto', sans-serif !important;
+      font-size: 3em;
+    }
 
-        .views {
-            color: lightblue;
-        }
+    .views {
+      color: #00bfff;
+    }
 
-        .thumbnail-container {
-            width: 100%;
-            padding-top: 56.25%;
-            margin-bottom: 15px;
-            position: relative;
-        }
+    .likes {
+      color: #32cd32;
+    }
 
-        .thumbnail-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-    <script src="https://github.hubspot.com/odometer/odometer.js"></script>
+    p {
+      margin: 5px 0;
+    }
+  </style>
+  <script src="https://github.hubspot.com/odometer/odometer.js"></script>
 </head>
 <body>
-    <div id="main">
-        <div class="video-list">
-            <div class="video-item">
-                <div class="thumbnail-container">
-                    <img id="mrbeast-video-thumbnail" src="https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e" alt="Miniature de la vidéo">
-                </div>
-                <h3 id="mrbeast-video-title">Loading...</h3>
-                <p><span id="mrbeast-video-views" class="odometer views">0</span></p>
-                <p><span id="mrbeast-video-likes" class="odometer likes">0</span></p>
-            </div>
+  <div id="main">
+    <div class="video-list">
+      <div class="video-item">
+        <div class="thumbnail-container">
+          <img id="mrbeast-video-thumbnail" src="https://via.placeholder.com/300x200?text=Chargement..." alt="Miniature de la vidéo">
         </div>
+        <h3 id="mrbeast-video-title">Chargement...</h3>
+        <p><span id="mrbeast-video-views" class="odometer views">0</span></p>
+        <p><span id="mrbeast-video-likes" class="odometer likes">0</span></p>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const API_KEY = 'AIzaSyCGEt9BCzNHb__M37X3DVRZvBr_bZ6AXig';
-        const MRBEAST_CHANNEL_ID = 'UCX6OQ3DkcsbYNE6H8uQQuVA';
+  <script>
+    const API_KEY = 'AIzaSyCGEt9BCzNHb__M37X3DVRZvBr_bZ6AXig';
+    const MRBEAST_CHANNEL_ID = 'UCX6OQ3DkcsbYNE6H8uQQuVA';
 
-        document.addEventListener("DOMContentLoaded", () => {
-            function parseISODuration(duration) {
-                const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-                const matches = duration.match(regex);
+    const elements = {
+      title: document.getElementById('mrbeast-video-title'),
+      thumbnail: document.getElementById('mrbeast-video-thumbnail'),
+      views: document.getElementById('mrbeast-video-views'),
+      likes: document.getElementById('mrbeast-video-likes'),
+    };
 
-                const hours = parseInt(matches[1] || 0, 10);
-                const minutes = parseInt(matches[2] || 0, 10);
-                const seconds = parseInt(matches[3] || 0, 10);
+    function parseISODuration(duration) {
+      const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+      const matches = duration.match(regex) || [];
+      const hours = parseInt(matches[1] || 0);
+      const minutes = parseInt(matches[2] || 0);
+      const seconds = parseInt(matches[3] || 0);
+      return hours * 3600 + minutes * 60 + seconds;
+    }
 
-                return hours * 3600 + minutes * 60 + seconds;
-            }
+    async function fetchLatestShortVideoId() {
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${MRBEAST_CHANNEL_ID}&maxResults=10&order=date&type=video&key=${API_KEY}`);
+        const data = await res.json();
+        for (const item of data.items) {
+          const videoId = item.id.videoId;
+          const detailsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${API_KEY}`);
+          const details = await detailsRes.json();
+          const duration = parseISODuration(details.items[0].contentDetails.duration);
+          if (duration <= 120) return videoId;
+        }
+        throw new Error('Aucune vidéo courte trouvée');
+      } catch (err) {
+        console.error('Erreur vidéos:', err.message);
+        return null;
+      }
+    }
 
-            async function fetchLatestVideoId() {
-                try {
-                    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${MRBEAST_CHANNEL_ID}&maxResults=5&order=date&type=video&key=${API_KEY}`);
-                    if (!response.ok) throw new Error('Erreur lors de la récupération des vidéos');
+    async function fetchVideoStats(videoId) {
+      try {
+        const res = await fetch(`https://backend.mixerno.space/api/youtube/video/${videoId}`);
+        const data = await res.json();
+        const item = data.items[0];
+        elements.title.textContent = item.snippet.title || 'Titre inconnu';
+        elements.thumbnail.src = item.snippet.thumbnails.medium.url || 'https://via.placeholder.com/300x200?text=Pas+de+miniature';
+        elements.views.innerText = item.statistics.viewCount || '0';
+        elements.likes.innerText = item.statistics.likeCount || '0';
+      } catch (err) {
+        console.error('Erreur stats:', err.message);
+      }
+    }
 
-                    const data = await response.json();
-                    for (const item of data.items) {
-                        const videoId = item.id.videoId;
-                        const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${API_KEY}`);
-                        const videoDetailsData = await videoDetailsResponse.json();
-                        const duration = videoDetailsData.items[0].contentDetails.duration;
-                        const durationInSeconds = parseISODuration(duration);
-                        if (durationInSeconds <= 120) return videoId;
-                    }
+    let currentVideoId = null;
 
-                    throw new Error('Aucune vidéo trouvée (hors Shorts)');
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des vidéos :', error);
-                }
-            }
+    async function init() {
+      currentVideoId = await fetchLatestShortVideoId();
+      if (currentVideoId) {
+        await fetchVideoStats(currentVideoId);
+        setInterval(() => fetchVideoStats(currentVideoId), 5000);
+      }
+    }
 
-            async function fetchVideoData(videoId) {
-                try {
-                    const response = await fetch(`https://backend.mixerno.space/api/youtube/video/${videoId}`);
-                    if (!response.ok) throw new Error('Erreur lors de la récupération des données de la vidéo');
-
-                    const data = await response.json();
-                    const video = data;
-
-                    const titleElement = document.getElementById('mrbeast-video-title');
-                    const thumbnailElement = document.getElementById('mrbeast-video-thumbnail');
-                    const viewsElement = document.getElementById('mrbeast-video-views');
-                    const likesElement = document.getElementById('mrbeast-video-likes');
-
-                    if (titleElement && thumbnailElement && viewsElement && likesElement) {
-                        titleElement.innerText = video.items[0].snippet.title || 'Titre non trouvé';
-                        thumbnailElement.src = video.items[0].snippet.thumbnails?.medium?.url || 'https://via.placeholder.com/300x200?text=Thumbnail+non+trouv%C3%A9e';
-                        viewsElement.innerText = video.items[0].statistics?.viewCount || '0';
-                        likesElement.innerText = video.items[0].statistics?.likeCount || '0';
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des données de la vidéo :', error);
-                }
-            }
-
-            let currentVideoId = null;
-
-            async function updateVideoData() {
-                if (currentVideoId) fetchVideoData(currentVideoId);
-            }
-
-            async function updateVideoId() {
-                currentVideoId = await fetchLatestVideoId();
-                if (currentVideoId) updateVideoData();
-            }
-
-            setInterval(updateVideoData, 2000);
-            updateVideoId();
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
